@@ -23,7 +23,6 @@ export class ProductController {
     @UseGuards(AuthGuard)
     @Get('/basket') // This endpoint will get all products for the authenticated user
     async getProductsFromBasket(@Req() request: any) {
-        console.log("Fetching products from basket");
         const userId = request.user.id; // Get user ID from JWT
         return await this.productService.getProductsFromBasket(userId);
     }
@@ -31,7 +30,6 @@ export class ProductController {
     @UseGuards(AuthGuard)
     @Get('/:id')
     async getProduct(@Param('id') productId: string, @Req() request: any) {
-        console.log("Fetching product by ID");
         const userId = request.user.id; // Get user ID from JWT
         return await this.productService.getProduct(userId, productId);
     }

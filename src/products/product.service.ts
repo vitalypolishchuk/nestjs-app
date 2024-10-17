@@ -47,7 +47,6 @@ export class ProductService {
     }
 
     async getProductsFromBasket(userId: string): Promise<Product[]> {
-        console.log({userId});
         const userProducts = await UserProductModel.find({ userId: new Types.ObjectId(userId) }).exec();
         const productIds = userProducts.map(up => up.productId);
 
