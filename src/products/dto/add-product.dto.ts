@@ -1,5 +1,5 @@
 import { ProductType } from 'src/models/product.model';
-import { IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNotEmpty } from 'class-validator';
 
 
 export class AddProductDto {
@@ -7,5 +7,8 @@ export class AddProductDto {
     productName: string;
 
     @IsNotEmpty()
+    @IsEnum(["Electronics", "Clothing", "Home Appliances", "Beauty Products", "Sporting Goods"], {
+        message: `productType must be one of the following values: Electronics, Clothing, Home Appliances, Beauty Products, Sporting Goods`
+    })
     productType: ProductType;
 }

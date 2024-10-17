@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { Product, ProductModel, UpdateProduct } from "src/models/product.model";
 import { Types } from 'mongoose';
 import { AddProductDto } from "./dto/add-product.dto";
@@ -30,5 +30,14 @@ export class ProductService {
             { new: true } // Return the updated product
         );
         return updatedProduct;
+    }
+
+    async deleteProduct(userId: string, productId: string) {
+        const result = await ProductModel.deleteOne(
+            { userId: new Types.ObjectId(userId), _id: new Types.ObjectId(productId) },
+        );
+        if (result.deletedCount === 0) throw new NotFoundException(`Product not found`);
+
+        return { message: 'Product successfully deleted' };
     }
 }

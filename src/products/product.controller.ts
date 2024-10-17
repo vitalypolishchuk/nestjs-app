@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
 import { ProductService } from "./product.service";
 import { AuthGuard } from "src/guards/auth.guard";
 import { AddProductDto } from "./dto/add-product.dto";
@@ -34,5 +34,12 @@ export class ProductController {
     async updateProduct(@Param('id') productId: string, @Body() updateProductDto: UpdateProduct, @Req() request: any) {
         const userId = request.user.id; // Get user ID from JWT
         return await this.productService.updateProduct(userId, productId, updateProductDto);
+    }
+
+    @UseGuards(AuthGuard)
+    @Delete('/:id')
+    async deleteProduct(@Param('id') productId: string, @Req() request: any) {
+        const userId = request.user.id; // Get user ID from JWT
+        return await this.productService.deleteProduct(userId, productId);
     }
 }
