@@ -1,8 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { ProductService } from "./product.service";
 import { AuthGuard } from "src/guards/auth.guard";
 import { AddProductDto } from "./dto/add-product.dto";
-import { UpdateProduct } from "src/models/product.model";
 
 @Controller('products')
 export class ProductController {
@@ -10,30 +9,31 @@ export class ProductController {
 
     @UseGuards(AuthGuard)
     @Post('/')
-    async addProduct(@Body() addProductDto: AddProductDto, @Req() request: any) {
+    async createProduct(@Body() addProductDto: AddProductDto, @Req() request: any) {
         const userId = request.user.id; // Get user ID from JWT
-        return await this.productService.addProduct(userId, addProductDto);
+        return await this.productService.createProduct(userId, addProductDto);
+    }
+
+    // Available for all users
+    @Get('/')
+    async getAllProducts() {
+        return await this.productService.getAllProducts();
     }
 
     @UseGuards(AuthGuard)
-    @Get('/')
-    async getAllProducts(@Req() request: any) {
+    @Get('/basket') // This endpoint will get all products for the authenticated user
+    async getProductsFromBasket(@Req() request: any) {
+        console.log("Fetching products from basket");
         const userId = request.user.id; // Get user ID from JWT
-        return await this.productService.getAllProducts(userId);
+        return await this.productService.getProductsFromBasket(userId);
     }
 
     @UseGuards(AuthGuard)
     @Get('/:id')
     async getProduct(@Param('id') productId: string, @Req() request: any) {
+        console.log("Fetching product by ID");
         const userId = request.user.id; // Get user ID from JWT
         return await this.productService.getProduct(userId, productId);
-    }
-
-    @UseGuards(AuthGuard)
-    @Put('/:id')
-    async updateProduct(@Param('id') productId: string, @Body() updateProductDto: UpdateProduct, @Req() request: any) {
-        const userId = request.user.id; // Get user ID from JWT
-        return await this.productService.updateProduct(userId, productId, updateProductDto);
     }
 
     @UseGuards(AuthGuard)
@@ -41,5 +41,19 @@ export class ProductController {
     async deleteProduct(@Param('id') productId: string, @Req() request: any) {
         const userId = request.user.id; // Get user ID from JWT
         return await this.productService.deleteProduct(userId, productId);
+    }
+
+    @UseGuards(AuthGuard)
+    @Post('/basket/:id')
+    async addProductToBasket(@Param('id') productId: string, @Req() request: any) {
+        const userId = request.user.id; // Get user ID from JWT
+        return await this.productService.addProductToBasket(userId, productId);
+    }
+
+    @UseGuards(AuthGuard)
+    @Delete('/basket/:id')
+    async deleteProductFromBasket(@Param('id') productId: string, @Req() request: any) {
+        const userId = request.user.id; // Get user ID from JWT
+        return await this.productService.deleteProductFromBasket(userId, productId);
     }
 }

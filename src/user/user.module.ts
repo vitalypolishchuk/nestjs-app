@@ -14,7 +14,8 @@ dotenv.config();
         }),
     ],
     controllers: [UserController],
-    providers: [UserService, AuthGuard]
+    providers: [UserService, AuthGuard],
+    exports: [UserService]
 })
 
 export class UserModule {}
