@@ -5,11 +5,24 @@ import { DatabaseModule } from "./database/database.module";
 import { AuthModule } from "./auth/auth.module";
 import { UserModule } from "./user/user.module";
 import { ProductModule } from "./products/product.module";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
     isGlobal: true // Makes it accessible globally without importing in each module
+  }),
+  JwtModule.registerAsync({
+    imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: async (configService: ConfigService) => {
+      const jwtSecret = configService.get<string>('JWT_SECRET');
+      console.log('JWT_SECRET:', jwtSecret); // Check if this is logging the correct value
+      return {
+        secret: jwtSecret,
+        signOptions: { expiresIn: '1h' },
+      };
+    },
   }),
   MongooseModule.forRootAsync({
     imports: [ConfigModule],
@@ -27,6 +40,7 @@ import { ProductModule } from "./products/product.module";
   UserModule,
   ProductModule
   ],
-  providers: []
+  providers: [],
+  exports: [JwtModule]
 })
 export class AppModule {}
