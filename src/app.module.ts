@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseModule } from "./database/database.module";
@@ -7,6 +7,7 @@ import { UserModule } from "./user/user.module";
 import { ProductModule } from "./products/product.module";
 import { CacheModule } from "@nestjs/cache-manager";
 import { BasketModule } from "./products/baskets/baskets.module";
+import { ResponseHeaderMiddleware } from "./middleware/response-header.middleware";
 
 @Module({
   imports: [
@@ -37,4 +38,11 @@ import { BasketModule } from "./products/baskets/baskets.module";
   ],
   providers: []
 })
-export class AppModule {}
+
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(ResponseHeaderMiddleware) // Apply the middleware globally
+      .forRoutes('*'); // Applies to all routes, you can specify specific routes here if needed
+  }
+}
