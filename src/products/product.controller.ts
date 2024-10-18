@@ -22,15 +22,14 @@ export class ProductController {
     }
 
     @UseGuards(AuthGuard)
-    @Get('/:id')
+    @Get('details/:id')
     async getProduct(@Param('id') productId: string, @Req() request: any) {
-        console.log("HERE")
         const userId = request.user.id; // Get user ID from JWT
         return await this.productService.getProduct(userId, productId);
     }
 
     @UseGuards(AuthGuard, AdminGuard)
-    @Delete('/:id')
+    @Delete('details/:id')
     async deleteProduct(@Param('id') productId: string, @Req() request: any) {
         const userId = request.user.id; // Get user ID from JWT
         return await this.productService.deleteProduct(userId, productId);
