@@ -24,6 +24,7 @@ export class ProductController {
     @UseGuards(AuthGuard)
     @Get('/:id')
     async getProduct(@Param('id') productId: string, @Req() request: any) {
+        console.log("HERE")
         const userId = request.user.id; // Get user ID from JWT
         return await this.productService.getProduct(userId, productId);
     }

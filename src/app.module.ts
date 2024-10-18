@@ -6,6 +6,7 @@ import { AuthModule } from "./auth/auth.module";
 import { UserModule } from "./user/user.module";
 import { ProductModule } from "./products/product.module";
 import { CacheModule } from "@nestjs/cache-manager";
+import { BasketModule } from "./products/baskets/baskets.module";
 
 @Module({
   imports: [
@@ -31,7 +32,8 @@ import { CacheModule } from "@nestjs/cache-manager";
   DatabaseModule,
   AuthModule,
   UserModule,
-  ProductModule
+  ProductModule,
+  BasketModule
   ],
   providers: []
 })

@@ -18,4 +18,4 @@ dotenv.config();
     providers: [BasketService]
 })
 
-export class ProductModule {}
+export class BasketModule {}
