@@ -1,11 +1,9 @@
 import { Module } from "@nestjs/common";
-import { ProductService } from "./product.service";
-import { ProductController } from "./product.controller";
 import { JwtModule } from "@nestjs/jwt";
 import * as dotenv from 'dotenv';
 import { UserModule } from "src/user/user.module";
-import { BasketController } from "./baskets/baskets.controller";
-import { BasketService } from "./baskets/baskets.service";
+import { BasketController } from "./baskets.controller";
+import { BasketService } from "./baskets.service";
 dotenv.config();
 
 @Module({
@@ -16,8 +14,8 @@ dotenv.config();
         }),
         UserModule
     ],
-    controllers: [ProductController, BasketController],
-    providers: [ProductService, BasketService]
+    controllers: [BasketController],
+    providers: [BasketService]
 })
 
 export class ProductModule {}

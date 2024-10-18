@@ -1,13 +1,18 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { Product, ProductModel } from "src/models/product.model";
 import { Types } from 'mongoose';
 import { AddProductDto } from "./dto/add-product.dto";
 import { UserProductModel } from "src/models/user-product.model";
 import { UserService } from "src/user/user.service";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Cache } from "cache-manager";
 
 @Injectable()
 export class ProductService {
-    constructor(private readonly userService: UserService) {}
+    constructor(
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
+        private userService: UserService, // Inject UserService
+    ) {}
 
     async createProduct(userId: string, addProductDto: AddProductDto): Promise<Product> {
         // Validate if the user exists
@@ -25,39 +30,19 @@ export class ProductService {
 
         await product.save(); // Save the product to the database
 
+        // Invalidate cache after product creation
+        await this.cacheManager.del('all_products');
+
         return product; // Return the newly created product
     }
 
-    async addProductToBasket(userId: string, productId: string): Promise<any> {
-        // Validate if the user exists
-        const user = await this.userService.getUser(userId);
-        if (!user) {
-            throw new NotFoundException(`User not found`);
+    async getProduct(userId: string, productId: string): Promise<Product | null> {
+        const cacheKey = `product_${productId}`;
+        const cachedProduct = await this.cacheManager.get<Product>(cacheKey);
+        if (cachedProduct) {
+            return cachedProduct;
         }
 
-        // Associate the product with the user in a UserProductModel
-        const userProduct = new UserProductModel({
-            userId: new Types.ObjectId(userId), // Associate with user
-            productId: new Types.ObjectId(productId), // Associate with product
-        });
-
-        await userProduct.save(); // Save the association to the database
-
-        return { message: 'Product successfully added to the basket' }; // Return success message
-    }
-
-    async getProductsFromBasket(userId: string): Promise<Product[]> {
-        const userProducts = await UserProductModel.find({ userId: new Types.ObjectId(userId) }).exec();
-        const productIds = userProducts.map(up => up.productId);
-
-        return await ProductModel.find({ _id: { $in: productIds } }).exec();
-    }
-
-    async getAllProducts(): Promise<Product[]> {
-        return await ProductModel.find().exec();
-    }
-
-    async getProduct(userId: string, productId: string): Promise<Product | null> {
         const product = await ProductModel.findOne({ 
             userId: new Types.ObjectId(userId), 
             _id: new Types.ObjectId(productId) 
@@ -67,7 +52,24 @@ export class ProductService {
             throw new NotFoundException(`Product not found or you do not have permission to access this product`);
         }
 
+        // Cache the product
+        await this.cacheManager.set(cacheKey, product, 1000 * 60); // Set TTL as appropriate
+
         return product;
+    }
+
+    async getAllProducts(): Promise<Product[]> {
+        const cachedProducts = await this.cacheManager.get<Product[]>('all_products');
+        if (cachedProducts) {
+            return cachedProducts;
+        }
+
+        const products = await ProductModel.find().exec();
+
+        // Cache the product list
+        await this.cacheManager.set('all_products', products, 1000 * 60); // Set TTL as appropriate
+
+        return products;
     }
 
     async deleteProduct(userId: string, productId: string): Promise<{ message: string }> {
@@ -75,31 +77,17 @@ export class ProductService {
         if (!product) {
             throw new NotFoundException(`Product not found or you do not have permission to delete this product`);
         }
-    
+
         // Delete the product from all user baskets
         await UserProductModel.deleteMany({ productId: new Types.ObjectId(productId) });
-    
+
         // Now delete the product itself
         await ProductModel.deleteOne({ _id: new Types.ObjectId(productId) });
-    
-        return { message: 'Product successfully deleted' };
-    }
 
-    async deleteProductFromBasket(userId: string, productId: string): Promise<{ message: string }> {
-        // Validate if the user exists
-        const user = await this.userService.getUser(userId);
-        if (!user) {
-            throw new NotFoundException(`User not found`);
-        }
-    
-        // Delete the product from the user's basket only
-        const result = await UserProductModel.deleteOne({ userId: new Types.ObjectId(userId), productId: new Types.ObjectId(productId) });
-    
-        // Check if any documents were deleted
-        if (result.deletedCount === 0) {
-            throw new NotFoundException(`Product not found in the user's basket`);
-        }
-    
-        return { message: 'Product successfully deleted from the user\'s basket' };
+        // Invalidate cache after deletion
+        await this.cacheManager.del(`product_${productId}`); // Invalidate the specific product cache
+        await this.cacheManager.del('all_products'); // Invalidate the product list cache
+
+        return { message: 'Product successfully deleted' };
     }
 }

@@ -6,10 +6,17 @@ import { JwtService } from "@nestjs/jwt";
 import { LogInDto } from "./dto/log-in.dto";
 
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { Response } from "express";
+import { ConfigService } from "@nestjs/config";
+import { RoleEnum } from "src/models/role.model";
+import { RoleModel } from "src/models/role.model";
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly jwtService: JwtService) {}
+    constructor(
+        private readonly jwtService: JwtService,
+        private readonly configService: ConfigService
+    ) {}
 
     async signUp(signUpDto: SignUpDto) {
         // Hash the password
@@ -48,8 +55,26 @@ export class AuthService {
             throw new UnauthorizedException('Password is invalid');
         }
 
-        const token = this.jwtService.sign({ email: user.email, id: user._id });
+        const role = await this.getRole(user.email);
+        const token = this.jwtService.sign({ email: user.email, id: user._id, role });
 
         return { token };
+    }
+
+    async getRole(email: string): Promise<RoleEnum> {
+        const roleRecord = await RoleModel.findOne({ email });
+        if (!roleRecord) return RoleEnum.User;
+    
+        return roleRecord.role;
+    }
+
+    setCookieAndRespond(res: Response, token: string, successMessage: string) {
+        res.cookie('jwt', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: 60 * 60 * 24 * 7, // 1 week
+        });
+    
+        return res.status(201).send({ message: successMessage });
     }
 }

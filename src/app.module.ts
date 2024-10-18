@@ -5,6 +5,7 @@ import { DatabaseModule } from "./database/database.module";
 import { AuthModule } from "./auth/auth.module";
 import { UserModule } from "./user/user.module";
 import { ProductModule } from "./products/product.module";
+import { CacheModule } from "@nestjs/cache-manager";
 
 @Module({
   imports: [
@@ -21,6 +22,11 @@ import { ProductModule } from "./products/product.module";
         uri,
       };
     },
+  }),
+  CacheModule.register({
+    ttl: 5, // Time to live in seconds
+    max: 100, // Maximum number of items in cache
+    isGlobal: true, // Set CacheModule as global
   }),
   DatabaseModule,
   AuthModule,

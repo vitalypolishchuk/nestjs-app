@@ -11,22 +11,12 @@ export class AuthController {
     @Post('signup')
     async signUp(@Body() signUpDto: SignUpDto, @Res() res: Response){
       const { token } = await this.authService.signUp(signUpDto);
-      this.setCookieAndRespond(res, token, 'User registered successfully')
+      this.authService.setCookieAndRespond(res, token, 'User registered successfully')
     }
 
     @Post('login')
     async login(@Body() loginDto: LogInDto, @Res() res: Response){
       const { token } = await this.authService.login(loginDto);
-      this.setCookieAndRespond(res, token, 'User logged in successfully')
-    }
-
-    private setCookieAndRespond(res: Response, token: string, successMessage: string) {
-      res.cookie('jwt', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 * 7, // 1 week
-      });
-  
-      return res.status(201).send({ message: successMessage });
+      this.authService.setCookieAndRespond(res, token, 'User logged in successfully')
     }
 }

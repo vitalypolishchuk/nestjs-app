@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class TokenValidationGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
@@ -15,13 +15,11 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const decoded = this.jwtService.verify(token);
-      console.log({decoded});
-      request.user = decoded; // Attach user data to request
+      this.jwtService.verify(token); // Only verify the token without attaching user data
       return true;
     } catch (error) {
-        console.error(error);
-        throw new UnauthorizedException('Invalid token');
+      console.error(error);
+      throw new UnauthorizedException('Invalid token');
     }
   }
 }
