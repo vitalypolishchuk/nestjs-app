@@ -4,6 +4,7 @@ import { AuthGuard } from "src/guards/auth.guard";
 import { AddProductDto } from "./dto/add-product.dto";
 import { AdminGuard } from "src/guards/admin.guard";
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthenticatedRequest } from "src/common/types";
 
 @ApiTags('products') // Group all product-related routes under the 'products' tag in Swagger
 @ApiBearerAuth()  // Indicate that JWT auth is used for protected routes in this controller
@@ -17,7 +18,7 @@ export class ProductController {
     @ApiResponse({ status: 201, description: 'Product created successfully' })
     @ApiResponse({ status: 403, description: 'Forbidden, Admin privileges required' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
-    async createProduct(@Body() addProductDto: AddProductDto, @Req() request: any) {
+    async createProduct(@Body() addProductDto: AddProductDto, @Req() request: AuthenticatedRequest) {
         const userId = request.user.id; // Get user ID from JWT
         return await this.productService.createProduct(userId, addProductDto);
     }
@@ -36,7 +37,7 @@ export class ProductController {
     @ApiResponse({ status: 200, description: 'Product details returned successfully' })
     @ApiResponse({ status: 404, description: 'Product not found' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
-    async getProduct(@Param('id') productId: string, @Req() request: any) {
+    async getProduct(@Param('id') productId: string, @Req() request: AuthenticatedRequest) {
         const userId = request.user.id; // Get user ID from JWT
         return await this.productService.getProduct(userId, productId);
     }
@@ -48,7 +49,7 @@ export class ProductController {
     @ApiResponse({ status: 404, description: 'Product not found' })
     @ApiResponse({ status: 403, description: 'Forbidden, Admin privileges required' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
-    async deleteProduct(@Param('id') productId: string, @Req() request: any) {
+    async deleteProduct(@Param('id') productId: string, @Req() request: AuthenticatedRequest) {
         const userId = request.user.id; // Get user ID from JWT
         return await this.productService.deleteProduct(userId, productId);
     }

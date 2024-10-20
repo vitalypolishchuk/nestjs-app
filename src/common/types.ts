@@ -5,3 +5,7 @@ export interface JwtPayload {
     id: string;
     role: RoleEnum
 }
+
+export interface AuthenticatedRequest extends Request {
+    user: JwtPayload;
+  }
