@@ -9,6 +9,12 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: '*', // Change this to your front-end domain in production
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+});
+
   app.useGlobalInterceptors(new ResponseInterceptor());
 
   app.use(cookieParser()); // Add this line to enable cookie parsing

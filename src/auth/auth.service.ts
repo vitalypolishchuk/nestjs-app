@@ -18,7 +18,7 @@ export class AuthService {
         private readonly configService: ConfigService
     ) {}
 
-    async signUp(signUpDto: SignUpDto) {
+    async signUp(signUpDto: SignUpDto): Promise<{ token: string }> {
         // Hash the password
         const hashedPassword = await bcrypt.hash(signUpDto.password, 10);
 
@@ -39,7 +39,7 @@ export class AuthService {
         return { token };
     }
 
-    async login(loginDto: LogInDto) {
+    async login(loginDto: LogInDto): Promise<{ token: string }> {
         // Check if user exists
         const user = await UserModel
             .findOne({ email: loginDto.email })

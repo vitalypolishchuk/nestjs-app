@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script> <!-- Include Socket.IO client -->
+</head>
+<body>
+    <input id="messageInput" type="text" placeholder="Type a message">
+    <button id="sendMessage">Send Message</button>
+
+    <script>
+        const socket = io('http://localhost:3333', {
+            path: '/chat/socket',
+            transports: ['websocket'],
+            auth: {
+                token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InZldGFsLnBvbGlzaHVrMkBnbWFpbC5jb20iLCJpZCI6IjY3MTRiMzhhNzZhZTMxNmFkMjEwYWJiYiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzI5NDA5OTM2LCJleHAiOjE3Mjk0MTM1MzZ9.sSigh4cwt-E525zLnkTRFvOEedsYC13f7AycdtKtd1k',
+            },
+        });
+
+        socket.on('connect', () => {
+            console.log('Socket.IO connection established');
+        });
+
+        socket.on('message', (data) => {
+            console.log('Message from server:', data);
+        });
+
+        document.getElementById('sendMessage').onclick = function() {
+            const message = document.getElementById('messageInput').value;
+            const recipientId = '6710e58a3048c203ebc16cc6'; // Specify the recipient's socket ID
+
+            socket.emit('message', {
+                to: recipientId,
+                message: message,
+            });
+
+            // Clear the input after sending
+            document.getElementById('messageInput').value = '';
+        };
+    </script>
+</body>
+</html>

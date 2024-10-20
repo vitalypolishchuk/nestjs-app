@@ -1,6 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
+import { JwtPayload } from 'src/common/types';
 
 @Injectable()
 export class TokenValidationGuard implements CanActivate {
@@ -15,7 +16,7 @@ export class TokenValidationGuard implements CanActivate {
     }
 
     try {
-      this.jwtService.verify(token); // Only verify the token without attaching user data
+      this.jwtService.verify(token) as JwtPayload; // Only verify the token without attaching user data
       return true;
     } catch (error) {
       console.error(error);

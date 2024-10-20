@@ -1,6 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
+import { JwtPayload } from 'src/common/types';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -15,8 +16,7 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const decoded = this.jwtService.verify(token);
-      console.log({decoded});
+      const decoded = this.jwtService.verify(token) as JwtPayload;
       request.user = decoded; // Attach user data to request
       return true;
     } catch (error) {

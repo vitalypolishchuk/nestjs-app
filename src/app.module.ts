@@ -8,6 +8,7 @@ import { ProductModule } from "./products/product.module";
 import { CacheModule } from "@nestjs/cache-manager";
 import { BasketModule } from "./products/baskets/baskets.module";
 import { ResponseHeaderMiddleware } from "./middleware/response-header.middleware";
+import { ChatModule } from "./chat/chat.module";
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { ResponseHeaderMiddleware } from "./middleware/response-header.middlewar
   AuthModule,
   UserModule,
   ProductModule,
-  BasketModule
+  BasketModule,
+  ChatModule
   ],
   providers: []
 })
