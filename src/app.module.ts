@@ -9,6 +9,7 @@ import { CacheModule } from "@nestjs/cache-manager";
 import { BasketModule } from "./products/baskets/baskets.module";
 import { ResponseHeaderMiddleware } from "./middleware/response-header.middleware";
 import { ChatModule } from "./chat/chat.module";
+import {  ChatModule as ChatMicroserviceModule } from "./chat-with-microservice/chat.module";
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { ChatModule } from "./chat/chat.module";
   UserModule,
   ProductModule,
   BasketModule,
-  ChatModule
+  ChatModule,
+  ChatMicroserviceModule
   ],
   providers: []
 })

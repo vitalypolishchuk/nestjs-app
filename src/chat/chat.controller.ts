@@ -5,7 +5,7 @@ import { AuthenticatedRequest } from "src/common/types";
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { MessageResponseDto } from "./dto/message.dto";
 
-@ApiTags('Chat') // This tags the controller in the Swagger UI
+@ApiTags('Chat')
 @Controller('chat')
 export class ChatController {
     constructor(private readonly chatService: ChatService) {}
