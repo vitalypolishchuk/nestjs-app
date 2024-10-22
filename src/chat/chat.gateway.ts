@@ -4,6 +4,9 @@ import { Server } from 'socket.io';
 import { WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer, SubscribeMessage } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { ChatService } from './chat.service'; // Adjust the path as necessary
+import { HandleConnectionSwagger } from './swagger/handle-connection-swagger.decorator';
+import { HandleDisconnectSwagger } from './swagger/handle-disconnect-swagger.decorator';
+import { SaveMessageSwagger } from './swagger/save-message-swagger.decorator';
 
 @WebSocketGateway({ path: '/chat/socket' })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -11,6 +14,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     constructor(private readonly chatService: ChatService) {}
 
+    @HandleConnectionSwagger()
     async handleConnection(client: Socket) {
         try {
             const token = client.handshake.auth.token; // Access the token
@@ -21,14 +25,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
     }
 
+    @HandleDisconnectSwagger()
     async handleDisconnect(client: Socket) {
         console.log('Client disconnected:', client.id);
         // Handle disconnection logic here if necessary
         client.disconnect(); // Clean disconnection
     }
 
+    @SaveMessageSwagger()
     @SubscribeMessage('message')
-    async handleMessage(client: Socket, payload: { to: string, message: string }) {
+    async saveMessage(client: Socket, payload: { to: string, message: string }) {
         const sender = client.data.user;
         try {
             const recipientSocketId = await this.chatService.getRecipientSocketId(payload);

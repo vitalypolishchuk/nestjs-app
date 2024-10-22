@@ -1,8 +1,11 @@
 import { Controller, Delete, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "src/guards/auth.guard";
 import { BasketService } from "./baskets.service";
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthenticatedRequest } from "src/common/types";
+import { GetUserBasketProductsSwagger } from "./swagger/get-user-product-basket-swagger.decorator";
+import { AddProductToBasketSwagger } from "./swagger/add-product-basket-swagger.decorator";
+import { RemoveProductFromBasketSwagger } from "./swagger/remove-product-basket-swagger.decorator";
 
 @ApiTags('basket') // Group all basket-related routes under the 'basket' tag in Swagger
 @ApiBearerAuth()  // Indicate that JWT auth is used for protected routes in this controller
@@ -12,9 +15,7 @@ export class BasketController {
 
     @UseGuards(AuthGuard)
     @Get('/') 
-    @ApiOperation({ summary: 'Get all products in the user\'s basket' })
-    @ApiResponse({ status: 200, description: 'Products retrieved successfully from basket' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @GetUserBasketProductsSwagger()
     async getProductsFromBasket(@Req() request: AuthenticatedRequest) {
         const userId = request.user.id; // Get user ID from JWT
         return await this.basketService.getProductsFromBasket(userId);
@@ -22,10 +23,7 @@ export class BasketController {
 
     @UseGuards(AuthGuard)
     @Post('/:id')
-    @ApiOperation({ summary: 'Add a product to the user\'s basket by product ID' })
-    @ApiResponse({ status: 201, description: 'Product added to basket successfully' })
-    @ApiResponse({ status: 404, description: 'Product not found' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @AddProductToBasketSwagger()
     async addProductToBasket(@Param('id') productId: string, @Req() request: AuthenticatedRequest) {
         const userId = request.user.id; // Get user ID from JWT
         return await this.basketService.addProductToBasket(userId, productId);
@@ -33,10 +31,7 @@ export class BasketController {
 
     @UseGuards(AuthGuard)
     @Delete('/:id')
-    @ApiOperation({ summary: 'Remove a product from the user\'s basket by product ID' })
-    @ApiResponse({ status: 200, description: 'Product removed from basket successfully' })
-    @ApiResponse({ status: 404, description: 'Product not found in basket' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @RemoveProductFromBasketSwagger()
     async deleteProductFromBasket(@Param('id') productId: string, @Req() request: AuthenticatedRequest) {
         const userId = request.user.id; // Get user ID from JWT
         return await this.basketService.deleteProductFromBasket(userId, productId);

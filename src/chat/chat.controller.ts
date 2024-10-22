@@ -2,25 +2,15 @@ import { Controller, Get, Req, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "src/guards/auth.guard";
 import { ChatService } from "./chat.service";
 import { AuthenticatedRequest } from "src/common/types";
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { MessageResponseDto } from "./dto/message.dto";
+import { ApiTags } from '@nestjs/swagger';
+import { GetChatHistorySwagger } from "./swagger/get-chat-history-swagger.decorator";
 
 @ApiTags('Chat')
 @Controller('chat')
 export class ChatController {
     constructor(private readonly chatService: ChatService) {}
 
-    @ApiBearerAuth() // Adds JWT Bearer auth support in Swagger
-    @ApiOperation({ summary: 'Get chat history' }) // Describes the operation in Swagger
-    @ApiResponse({
-      status: 200,
-      description: 'Chat history fetched successfully',
-      type: [MessageResponseDto],
-    })
-    @ApiResponse({
-      status: 401,
-      description: 'Unauthorized',
-    })
+    @GetChatHistorySwagger()
     @UseGuards(AuthGuard)
     @Get('history')
     async getChatHistory(@Req() request: AuthenticatedRequest) {
